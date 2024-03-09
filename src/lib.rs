@@ -56,7 +56,7 @@ impl HOTPAlgorithm {
                 Option::Some(HOTPAlgorithm::HMACSHA512)
             },
             _ => {
-                Option::None
+                Option::Some(HOTPAlgorithm::HMACSHA1)
             },
         }
     }
