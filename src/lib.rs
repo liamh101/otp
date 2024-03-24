@@ -22,7 +22,7 @@
 //!     validate_totp(guess, 1, secret, OTP_DIGITS, TOTP_STEP, 0)
 //! }
 //!
-//! fn get_user_otp(user: User) -> Option<u32> {
+//! fn get_user_otp(user: User) -> Option<String> {
 //!     // get shared secret
 //!     let secret = user.get_totp_secret();
 //!
@@ -320,15 +320,28 @@ pub fn hotp(counter: u64, secret: &str, digits: u32) -> Option<u32> {
 ///     }
 /// }
 /// ```
-pub fn totp(secret: &str, digits: u32, time_step: u64, time_start: u64) -> Option<u32> {
+pub fn totp(secret: &str, digits: u32, time_step: u64, time_start: u64) -> Option<String> {
     match HOTP::from_base32(secret) {
         Ok(otp) => {
-            Option::Some(TOTP::new(otp, time_step, time_start).get_otp(digits, 0))
+            let totp = TOTP::new(otp, time_step, time_start).get_otp(digits, 0);
+
+            Option::Some(totp_u23_to_string(totp, digits))
         },
         Err(_) => {
             Option::None
         }
     }
+}
+
+fn totp_u23_to_string(totp: u32, expected_digits_len: u32) -> String {
+    let string_totp = totp.to_string();
+    let digit_difference: usize = (expected_digits_len as usize) - string_totp.len();
+
+    if digit_difference == 0 {
+        return string_totp;
+    }
+
+    return String::from_utf8(vec![b'0'; digit_difference]).unwrap() + &string_totp
 }
 
 /// Validates HOTP inputs
