@@ -96,3 +96,11 @@ fn test_time_to_counter() {
     assert_eq!(&utils::num_to_buffer(2000000000 / STEP)[..], &[0, 0, 0, 0, 0x03, 0xf9, 0x40, 0xaa]);
     assert_eq!(&utils::num_to_buffer(20000000000 / STEP)[..], &[0, 0, 0, 0, 0x27, 0xbc, 0x86, 0xaa]);
 }
+
+#[test]
+fn test_totp_prefix() {
+    assert_eq!(totp_u23_to_string(012345, 6), "012345");
+    assert_eq!(totp_u23_to_string(456789, 6), "456789");
+    assert_eq!(totp_u23_to_string(456, 6), "000456");
+    assert_eq!(totp_u23_to_string(08976423, 8), "08976423");
+}
