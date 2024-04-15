@@ -42,6 +42,13 @@ fn test_hotp_from_base32() {
 }
 
 #[test]
+fn test_hotp_from_predefined_algorithm() {
+    HOTP::from_base32_predefined_algorithm("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYU", HOTPAlgorithm::HMACSHA1).unwrap();
+    HOTP::from_base32_predefined_algorithm("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGAZDINRYHI6D4QA====", HOTPAlgorithm::HMACSHA256).unwrap();
+    HOTP::from_base32_predefined_algorithm("AEBAGBAFAYDQQCIKBMGA2DQPCAIREEYUCULBOGAZDINRYHI6D4QCCIRDEQSSMJZIFEVCWLBNFYXTAMJSGM2DKNRXHA4TUOZ4HU7D6QA=", HOTPAlgorithm::HMACSHA512).unwrap();
+}
+
+#[test]
 fn test_dynamic_trunc() {
     let num = HOTP::get_hotp_value(&[31, 134, 152, 105, 14, 2, 202, 22, 97, 133, 80, 239, 127, 25, 218, 142, 148, 91, 85, 90]);
     assert_eq!(num, 0x50ef7f19);
