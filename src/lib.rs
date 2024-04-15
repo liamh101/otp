@@ -119,15 +119,30 @@ impl HOTP {
         let algorithm = HOTPAlgorithm::from_buffer_len(secret.len());
         match algorithm {
             Some(algorithm) => {
-                Result::Ok(HOTP{
+                Ok(HOTP{
                     secret: Vec::from(secret),
                     algorithm,
                 })
             },
             None => {
-                Result::Err(())
+                Err(())
             }
         }
+    }
+
+    pub fn from_base32_predefined_algorithm(data: &str, algorithm: HOTPAlgorithm) -> Result<HOTP, ()> {
+        let mut buffer = [0u8; 1024];
+        let secret = match binascii::b32decode(data.as_bytes(), &mut buffer) {
+            Ok(v) => v,
+            Err(_) => {
+                return Err(());
+            }
+        };
+
+        Ok(HOTP{
+            secret: Vec::from(secret),
+            algorithm,
+        })
     }
 
     /// Loads the HOTP secret from a given `[u8]`.
@@ -329,6 +344,19 @@ pub fn totp(secret: &str, digits: u32, time_step: u64, time_start: u64) -> Optio
         },
         Err(_) => {
             Option::None
+        }
+    }
+}
+
+pub fn totp_override(secret: &str, digits: u32, time_step: u64, time_start: u64, algorithm: HOTPAlgorithm) -> Option<String> {
+    match HOTP::from_base32_predefined_algorithm(secret, algorithm) {
+        Ok(otp) => {
+            let totp = TOTP::new(otp, time_step, time_start).get_otp(digits, 0);
+
+            Some(totp_u23_to_string(totp, digits))
+        },
+        Err(_) => {
+            None
         }
     }
 }
